@@ -16,10 +16,16 @@ public class Window {
     private static Window window = null;
     // Memory Address
     private long glfwWindow = 0;
+    private float r, g, b, a;
+    private boolean fadeToBlack = false;
     private Window() {
         this.width = 1920;
         this.height = 1080;
         this.title = "mario";
+        this.r = 1;
+        this.g = 1;
+        this.b = 1;
+        this.a = 1;
     }
 
     public static Window get() {
@@ -69,6 +75,8 @@ public class Window {
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
 
+        glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
         // Enable V-sync
@@ -90,9 +98,18 @@ public class Window {
             // Poll events
             glfwPollEvents();
 
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+            glClearColor(r, b, b, a);
             // clear the buffer
             glClear(GL_COLOR_BUFFER_BIT);
+            if (fadeToBlack) {
+                r = Math.max(r - 0.01f, 0);
+                g = Math.max(g - 0.01f, 0);
+                b = Math.max(b - 0.01f, 0);
+            }
+
+            if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+                fadeToBlack = true;
+            }
 
             glfwSwapBuffers(glfwWindow);
         }
